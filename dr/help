@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Service name passed as argument by dr.
+SERVICENAME="$1"
+IMAGENAME="$2"
+
+cat <<EOF >&2
+   
+NAME
+   ${SERVICENAME} - testing stuff
+ 
+DESCRIPTION
+   A testing thing. Built from ${IMAGENAME}.
+EOF
+
+
+function p {
+   echo "$1" >&2
+}
+
+p " "
+p "dr/help SERVICENAME IMAGE"
+p "dr/help  ${SERVICENAME} ${IMAGENAME}"
+p " "
+
