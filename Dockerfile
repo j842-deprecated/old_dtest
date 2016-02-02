@@ -26,4 +26,4 @@ RUN chmod a+rx -R /usr/local/bin  &&  chmod a-w -R /dr
 USER druser
 
 # expose volume
-VOLUME ["/config"]
+VOLUME ["/config" "/data"]

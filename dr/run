@@ -1,7 +1,5 @@
 #!/bin/bash
-
-SERVICENAME="$1"
-IMAGENAME="$2"
+source "$( dirname "$(readlink -f "$0")" )/_variables"
 
 # This script is run on the host.
 # It launches the docker container and runs our hello world command.
@@ -9,9 +7,8 @@ IMAGENAME="$2"
 docker run -i -t --name="${SERVICENAME}-run" -h "${HOSTNAME}"     \
                -v "dr-${SERVICENAME}-config:/config"                   \
                ${IMAGENAME} helloworld ${SERVICENAME} ${IMAGENAME}
+RVAL=$?
 docker rm "${SERVICENAME}-run" >/dev/null 2>&1
-
-
 
 function p {
    echo "$1" >&2
@@ -22,3 +19,4 @@ p "dr/run SERVICENAME IMAGE"
 p "dr/run  ${SERVICENAME} ${IMAGENAME}"
 p " "
 
+exit $RVAL
