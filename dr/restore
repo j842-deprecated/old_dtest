@@ -18,5 +18,7 @@ p "dr/restore SERVICENAME IMAGE PATH   -- restore from files in PATH"
 p "dr/restore  ${SERVICENAME} ${IMAGENAME} ${RESTOREPATH}"
 p " "
 
-cat /config/note.txt
-cat /data/note.txt
+docker run -i -t --name="${SERVICENAME}-run" ${DOCKEROPTS[@]} ${IMAGENAME} \
+               bash -c 'cat /config/note.txt && cat /data/note.txt'
+docker rm "${SERVICENAME}-run" >/dev/null 2>&1
+
