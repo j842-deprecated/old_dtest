@@ -20,7 +20,7 @@ echo "Restore succeeded! Our note.txt file was automatically backed up for us." 
 
 
 
-docker run -i -t --name="${SERVICENAME}-run" ${DOCKEROPTS[@]} ${IMAGENAME} \
+docker run -i -t --name="${SERVICENAME}-run" "${DOCKEROPTS[@]}" "${IMAGENAME}" \
                bash -c 'echo "Restore of config succeeded!" > /config/note.txt && echo "Restore of data succeeded!" > /data/note.txt'
 docker rm "${SERVICENAME}-run" >/dev/null 2>&1
 

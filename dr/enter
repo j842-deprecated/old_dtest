@@ -16,6 +16,6 @@ p " "
 # It launches the docker container and runs our hello world command.
 
 docker run -i -t --name="${SERVICENAME}-enter" -h "${HOSTNAME}"     \
-               -v "dr-${SERVICENAME}-config:/config"                   \
+               ${DOCKEROPTS[@]}                                     \
                ${IMAGENAME} /bin/bash
 docker rm "${SERVICENAME}-enter"
