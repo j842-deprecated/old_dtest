@@ -22,3 +22,5 @@ docker run -i -t --name="${SERVICENAME}-run" "${DOCKEROPTS[@]}" "${IMAGENAME}" \
                bash -c 'cat /config/note.txt && cat /data/note.txt'
 docker rm "${SERVICENAME}-run" >/dev/null 2>&1
 
+
+cat "$RESTOREPATH/note.txt" >&2
