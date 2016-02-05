@@ -29,6 +29,15 @@ function title {
    echo " ">&2
 }
 
+# works when there's nothing tricky in the string.
+function testcommand {
+   local MYCMD="$1"
+   passfailmsg "$MYCMD"
+   bash -c $MYCMD >/dev/null 2>&1
+   passfail $?
+}
+
+
 function testservice {
    local SERVICENAME="$1"  
 }
@@ -45,22 +54,16 @@ function testdrunner {
    PFMSG="create tempdir ${TEMPDIR}" ; passfail $?
    
    ( #subshell, so if we exit we still clean up
-      passfailmsg "drunner install ${IMAGENAME} ${SERVICE}"
-      drunner install "${IMAGENAME}" "${SERVICE}" >/dev/null 2>&1
-      passfail $?
+      testcommand "drunner install ${IMAGENAME} ${SERVICE}"
       
-      passfailmsg "drunner update ${SERVICE}"
-      drunner update "${SERVICE}" >/dev/null 2>&1
-      passfail $?
+      testcommand "drunner update ${SERVICE}"
       
       passfailmsg "drunner enter ${SERVICE} -c \"echo hi\""
       drunner enter "${SERVICE}" -c "echo hi" >/dev/null 2>&1
       passfail $?      
            
       local PASS="password123"
-      passfailmsg "PASS=${PASS} drunner backup ${SERVICE} ${TEMPDIR}/backup"
-      bash -c "PASS=${PASS} drunner backup ${SERVICE} ${TEMPDIR}/backup"
-      passfail $?
+      testcommand "PASS=${PASS} drunner backup ${SERVICE} ${TEMPDIR}/backup"
    )
 
    passfailmsg "drunner destroy ${SERVICE}-clone"
