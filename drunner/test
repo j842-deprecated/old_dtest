@@ -33,13 +33,15 @@ function title {
 function testcommand {
    local MYCMD="$1"
    passfailmsg "$MYCMD"
-   bash -c $MYCMD >/dev/null 2>&1
+   bash -c "$MYCMD" >/dev/null 2>&1
    passfail $?
 }
 
 
 function testservice {
    local SERVICENAME="$1"  
+   
+   testcommand "${SERVICENAME} help"
 }
 
 function testdrunner {
@@ -55,7 +57,6 @@ function testdrunner {
    
    ( #subshell, so if we exit we still clean up
       testcommand "drunner install ${IMAGENAME} ${SERVICE}"
-      
       testcommand "drunner update ${SERVICE}"
       
       passfailmsg "drunner enter ${SERVICE} -c \"echo hi\""
@@ -64,19 +65,16 @@ function testdrunner {
            
       local PASS="password123"
       testcommand "PASS=${PASS} drunner backup ${SERVICE} ${TEMPDIR}/backup"
+      testcommand "PASS=${PASS} drunner restore ${TEMPDIR}/backup ${SERVICE}-clone"
+      testcommand "drunner update ${SERVICE}-clone"
+
+      testservice "${SERVICE}"
+      testservice "${SERVICE}-clone"
    )
 
-   passfailmsg "drunner destroy ${SERVICE}-clone"
-   drunner destroy "${SERVICE}-clone" >/dev/null 2>&1
-   passfail $?      
-
-   passfailmsg "drunner destroy ${SERVICE}"
-   drunner destroy "${SERVICE}" >/dev/null 2>&1
-   passfail $?      
-   
-   passfailmsg "remove ${TEMPDIR}"
-   rm -r ${TEMPDIR}
-   passfail $?
+   testcommand "drunner destroy ${SERVICE}-clone"
+   testcommand "drunner destroy ${SERVICE}"
+   testcommand "rm -r ${TEMPDIR}"
    
    echo " ">&2
 }
