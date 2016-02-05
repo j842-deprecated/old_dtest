@@ -18,7 +18,8 @@ function title {
 }
 
 RVAL=0
-TESTIMAGES=("drunner/test" "drunner/helloworld" "drunner/simplesecrets" "drunner/samba" "drunner/ansible" "drunner/minecraft")
+#TESTIMAGES=("drunner/test" "drunner/helloworld" "drunner/simplesecrets" "drunner/samba" "drunner/ansible" "drunner/minecraft")
+TESTIMAGES=("drunner/test" "drunner/helloworld" "drunner/simplesecrets")
 
 for TESTIMAGE in "${TESTIMAGES[@]}"; do
    ${SERVICENAME} test ${TESTIMAGE}
