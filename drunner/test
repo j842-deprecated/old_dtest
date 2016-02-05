@@ -18,6 +18,8 @@ function passfail {
    if [ $1 -eq 0 ]; then
       echo -e "[ \e[32m\u2714\e[0m ] $PFMSG" >&2
    else
+      # FAIL
+      RVAL=1
       echo -e "[ \e[31m\e[1m\u2718\e[0m ] $PFMSG" >&2
    fi
 }
@@ -70,8 +72,12 @@ function testdrunner {
 
       testservice "${SERVICE}"
       testservice "${SERVICE}-clone"
+      
+      # exit the subshell.
+      exit "$RVAL"
    )
-
+   RVAL=$?
+   
    testcommand "drunner destroy ${SERVICE}-clone"
    testcommand "drunner destroy ${SERVICE}"
    testcommand "rm -r ${TEMPDIR}"
@@ -82,17 +88,6 @@ function testdrunner {
 
 RVAL=0
 testdrunner ${1:-"drunner/test"}
-
-
-
-# docker run -i -t --name="${SERVICENAME}-run" -h "${HOSTNAME}"        \
-#                "${DOCKEROPTS[@]}"                                      \
-#                "${IMAGENAME}" helloworld "${SERVICENAME}" "${IMAGENAME}"
-# RVAL=$?
-# docker rm "${SERVICENAME}-run" >/dev/null 2>&1
-
-
-
 exit $RVAL
 
 # http://patorjk.com/software/taag/#p=display&f=Univers&t=dRunner
