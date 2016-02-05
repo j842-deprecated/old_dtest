@@ -1,3 +1,4 @@
 #!/bin/bash
-docker build -t j842/dr-test .
+docker build -t drunner/test .
+
 

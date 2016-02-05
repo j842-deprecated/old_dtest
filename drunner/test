@@ -1,0 +1,24 @@
+#!/bin/bash
+source "$( dirname "$(readlink -f "$0")" )/_variables"
+
+# This script is run on the host.
+# It launches the docker container and runs our hello world command.
+
+
+CONTAINER=${1:-"drunner/test"}
+
+echo "Testing $1" >&2
+
+
+
+
+
+# docker run -i -t --name="${SERVICENAME}-run" -h "${HOSTNAME}"        \
+#                "${DOCKEROPTS[@]}"                                      \
+#                "${IMAGENAME}" helloworld "${SERVICENAME}" "${IMAGENAME}"
+# RVAL=$?
+# docker rm "${SERVICENAME}-run" >/dev/null 2>&1
+
+
+
+exit $RVAL
