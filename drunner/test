@@ -4,12 +4,38 @@ source "$( dirname "$(readlink -f "$0")" )/_variables"
 # This script is run on the host.
 # It launches the docker container and runs our hello world command.
 
+function passfailmsg {
+   if [ $2 -eq 0 ]; then
+      echo -e "[ \e[32m\u2714\e[0m ] $1" >&2
+   else
+      echo -e "[ \e[31m\e[1m\u2718\e[0m ] $1" >&2
+   fi
+}
 
-CONTAINER=${1:-"drunner/test"}
+function title {
+   echo " ">&2
+   echo " ">&2
+   echo -e "\e[1;4;32m${1}\e[0m">&2
+   echo " ">&2
+}
 
-echo "Testing $1" >&2
+function testservice {
+   local SERVICENAME="$1"  
+}
+
+function testdrunner {
+   local IMAGENAME="$1"
+
+   title "Testing $IMAGENAME"
+
+   passfailmsg "Testing $CONTAINER" 0
+   passfailmsg "Testing $CONTAINER" 1
+
+   echo " ">&2
+}
 
 
+testdrunner ${1:-"drunner/test"}
 
 
 
@@ -22,3 +48,8 @@ echo "Testing $1" >&2
 
 
 exit $RVAL
+
+# http://patorjk.com/software/taag/#p=display&f=Univers&t=dRunner
+# http://shapecatcher.com/
+# http://misc.flogisoft.com/bash/tip_colors_and_formatting
+
