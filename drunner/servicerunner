@@ -103,7 +103,8 @@ function main {
          
          testall)
             "$MYDIR/testall" "$@"
-               
+            ;;
+            
          *)
             showhelp
             die "Unrecognised command ${CODE_S}${COMMAND}${CODE_E}"            
