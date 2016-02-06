@@ -52,10 +52,10 @@ EOF
 }
 
 #------------------------------------------------------------------------------------
-# Run a command in the container. If we had any volumes we'd add in "${DOCKEROPTS[@]}".
+# Run a command in the container. 
 
 function dockerrun {
-   docker run -i -t --name="${SERVICENAME}-${COMMAND}" -h "${HOSTNAME}" "${IMAGENAME}" "$@"
+   docker run -i -t --name="${SERVICENAME}-${COMMAND}" -h "${HOSTNAME}" "${DOCKEROPTS[@]}" "${IMAGENAME}" "$@"
    local RVAL=$?
    docker rm "${SERVICENAME}-${COMMAND}" >/dev/null
    if [ $RVAL -ne 0 ]; then die "${COMMAND} failed." ; fi
@@ -80,10 +80,17 @@ function main {
                      
          backup)
             BACKUPPATH="$1"
+            echo "Restore of BACKUPPATH succeeded!" > ${BACKUPPATH}/note.txt
+            dockerrun bash -c 'echo "Restore of config succeeded!" > /config/note.txt'
+            dockerrun bash -c 'echo "Restore of data succeeded!" > /data/note.txt'
             ;;
          
          restore)
             RESTOREPATH="$1"
+            dockerrun bash -c 'cat /config/note.txt'
+            dockerrun bash -c 'cat /data/note.txt'
+
+            cat "$RESTOREPATH/note.txt" >&2
             ;;
          
          help)
