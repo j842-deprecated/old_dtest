@@ -6,24 +6,20 @@ source "$( dirname "$(readlink -f "$0")" )/_variables"
 # It launches the docker container and runs our hello world command.
 
 # call first
-function passfailmsg {
-   PFMSG="$1"
-   
-   echo -e "[ \e[2m?\e[0m ] $PFMSG">&2   
-}
+function checkingmsg { PFMSG="$1" ; echo -e "[ \e[2m?\e[0m ] $PFMSG">&2 ; }
+function passmsg { echo -e "[ \e[32m\u2714\e[0m ] $PFMSG" >&2 ; }
+function failmsg { echo -e "[ \e[31m\e[1m\u2718\e[0m ] $PFMSG" >&2 ; }
 
 # call second to rewrite with tick/cross
+# passfail VALUETOTEST INVERT
 function passfail {
    # go up a line
    echo -en "\e[1A">&2
-   # rewrite
-   if [ $1 -eq 0 ]; then
-      echo -e "[ \e[32m\u2714\e[0m ] $PFMSG" >&2
-   else
-      # FAIL
-      RVAL=1
-      echo -e "[ \e[31m\e[1m\u2718\e[0m ] $PFMSG" >&2
-   fi
+   # rewrite, 0 = pass/yes, not 0 = fail/no
+   [ "$2" -eq 0 ] && [ "$1" -eq 0 ] && passmsg && return
+   [ "$2" -ne 0 ] && [ "$1" -ne 0 ] && passmsg && return
+   failmsg
+   RVAL=1
 }
 
 function title {
@@ -34,16 +30,12 @@ function title {
 }
 
 # works when there's nothing tricky in the string.
-# testcommand COMMAND WANTTOFAIL
+# testcommand COMMAND INVERT
 function testcommand {
    local MYCMD="$1"
-   passfailmsg "$MYCMD"
+   checkingmsg "$MYCMD"
    bash -c "$MYCMD" >/dev/null 2>&1
-   if [ $# -eq 2 ]; then
-      passfail ! $?
-   else
-      passfail $?
-   fi
+   passfail $? ${2:-0}
 }
 
 
@@ -51,7 +43,7 @@ function testservice {
    local SERVICENAME="$1"  
    
    testcommand "${SERVICENAME} help"
-   testcommand "${SERVICENAME} commandthatdoesntexist" WANTTOFAIL
+   testcommand "${SERVICENAME} commandthatdoesntexist" 1
 }
 
 function testdrunner {
@@ -61,17 +53,18 @@ function testdrunner {
    
    local SERVICE="test-${IMAGENAME//[![:alnum:]]/}"
    
-   passfailmsg "create tempdir"
+   checkingmsg "create tempdir"
    local TEMPDIR="$(mktemp -d)"
-   PFMSG="create tempdir ${TEMPDIR}" ; passfail $?
+   PFMSG="create tempdir ${TEMPDIR}"
+   passfail $? 0
    
    ( #subshell, so if we exit we still clean up
       testcommand "drunner install ${IMAGENAME} ${SERVICE}"
       testcommand "drunner update ${SERVICE}"
             
-      passfailmsg "drunner enter ${SERVICE} -c \"echo hi\""
+      checkingmsg "drunner enter ${SERVICE} -c \"echo hi\""
       drunner enter "${SERVICE}" -c "echo hi" >/dev/null 2>&1
-      passfail $?      
+      passfail $? 0
            
       local PASS="password123"
       testcommand "PASS=${PASS} drunner backup ${SERVICE} ${TEMPDIR}/backup"
