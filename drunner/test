@@ -1,6 +1,6 @@
 #!/bin/bash
 set -o nounset
-source "$( dirname "$(readlink -f "$0")" )/_variables"
+source "$( dirname "$(readlink -f "$0")" )/variables.sh"
 
 # This script is run on the host.
 # It launches the docker container and runs our hello world command.
