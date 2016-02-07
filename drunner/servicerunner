@@ -78,13 +78,17 @@ function main {
          destroy)
             ;;
                      
-         backup)
+         backupstart)
             BACKUPPATH="$1"
             echo "Restore of BACKUPPATH succeeded!" > ${BACKUPPATH}/note.txt
             dockerrun bash -c 'echo "Restore of config succeeded!" > /config/note.txt'
             dockerrun bash -c 'echo "Restore of data succeeded!" > /data/note.txt'
             ;;
          
+         backupend)
+            BACKUPPATH="$1"
+            ;;
+                     
          restore)
             RESTOREPATH="$1"
             dockerrun bash -c 'cat /config/note.txt'
