@@ -89,7 +89,7 @@ function testdrunner {
 
 
 RVAL=0
-testdrunner ${1:-"drunner/test"}
+testdrunner ${1:-$IMAGENAME}
 exit $RVAL
 
 # http://patorjk.com/software/taag/#p=display&f=Univers&t=dRunner

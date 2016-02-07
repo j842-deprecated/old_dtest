@@ -111,9 +111,11 @@ function main {
             dockerrun /bin/bash "$@"
             ;;
          
-         update)
+         updatestart)
             ;;
 
+         updateend)
+            ;;
          
          selftest)
             ;;
