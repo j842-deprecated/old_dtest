@@ -5,12 +5,14 @@ source "$( dirname "$(readlink -f "$0")" )/_variables"
 # This script is run on the host.
 # It launches the docker container and runs our hello world command.
 
+# call first
 function passfailmsg {
    PFMSG="$1"
    
    echo -e "[ \e[2m?\e[0m ] $PFMSG">&2   
 }
 
+# call second to rewrite with tick/cross
 function passfail {
    # go up a line
    echo -en "\e[1A">&2
@@ -32,11 +34,16 @@ function title {
 }
 
 # works when there's nothing tricky in the string.
+# testcommand COMMAND WANTTOFAIL
 function testcommand {
    local MYCMD="$1"
    passfailmsg "$MYCMD"
    bash -c "$MYCMD" >/dev/null 2>&1
-   passfail $?
+   if [ $# -eq 2 ]; then
+      passfail ! $?
+   else
+      passfail $?
+   fi
 }
 
 
@@ -44,6 +51,7 @@ function testservice {
    local SERVICENAME="$1"  
    
    testcommand "${SERVICENAME} help"
+   testcommand "${SERVICENAME} commandthatdoesntexist" WANTTOFAIL
 }
 
 function testdrunner {
@@ -60,7 +68,7 @@ function testdrunner {
    ( #subshell, so if we exit we still clean up
       testcommand "drunner install ${IMAGENAME} ${SERVICE}"
       testcommand "drunner update ${SERVICE}"
-      
+            
       passfailmsg "drunner enter ${SERVICE} -c \"echo hi\""
       drunner enter "${SERVICE}" -c "echo hi" >/dev/null 2>&1
       passfail $?      
