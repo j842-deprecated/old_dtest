@@ -15,6 +15,8 @@
 # Initialisation of globals.
 
 set -o nounset
+set -e
+
 MYDIR=$( dirname "$(readlink -f "$0")" )
 source "$MYDIR/_variables"
 e=$(printf "\e") 
@@ -55,8 +57,9 @@ EOF
 # Run a command in the container. 
 
 function dockerrun {
-   docker run -i -t --name="${SERVICENAME}-${COMMAND}" -h "${HOSTNAME}" "${DOCKEROPTS[@]}" "${IMAGENAME}" "$@"
-   local RVAL=$?
+   RVAL=0
+   # don't let the bash command fail or set -e will kill us. Could use a subshell, but we only have one command so use ||
+   docker run -i -t --name="${SERVICENAME}-${COMMAND}" -h "${HOSTNAME}" "${DOCKEROPTS[@]}" "${IMAGENAME}" "$@" || RVAL=$?
    docker rm "${SERVICENAME}-${COMMAND}" >/dev/null
    if [ $RVAL -ne 0 ]; then die "${SERVICENAME} ${COMMAND} failed." ; fi
 }
@@ -72,6 +75,9 @@ function main {
    COMMAND="${1}" ; shift
    
    case "$COMMAND" in 
+   
+          #--- standard (required) commands
+  
          install)
             ;;
             
@@ -108,6 +114,12 @@ function main {
          update)
             ;;
 
+         
+         selftest)
+            ;;
+            
+         #--- custom commands
+
          test)
             "$MYDIR/test" "$@"
             ;;
@@ -115,7 +127,9 @@ function main {
          testall)
             "$MYDIR/testall" "$@"
             ;;
-            
+
+         #--- unrecognised commands
+
          *)
             showhelp
             die "Unrecognised command ${CODE_S}${COMMAND}${CODE_E}"            

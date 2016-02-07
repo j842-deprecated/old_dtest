@@ -44,6 +44,7 @@ function testservice {
    
    testcommand "${SERVICENAME} help"
    testcommand "${SERVICENAME} commandthatdoesntexist" 1
+   testcommand "${SERVICENAME} selftest"
 }
 
 function testdrunner {
