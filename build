@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGENAME="drunner/test"
+IMAGENAME="drunner/dtest"
 
 
 #------------------------------------------------
