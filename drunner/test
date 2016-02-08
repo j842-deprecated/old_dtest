@@ -60,6 +60,7 @@ function testdrunner {
    passfail $? 0
    
    ( #subshell, so if we exit we still clean up
+      testcommand "drunner checkimage ${IMAGENAME}"
       testcommand "drunner install ${IMAGENAME} ${SERVICE}"
       testcommand "drunner update ${SERVICE}"
             
