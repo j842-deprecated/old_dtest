@@ -62,6 +62,14 @@ function testdrunner {
    ( #subshell, so if we exit we still clean up
       testcommand "drunner checkimage ${IMAGENAME}"
       testcommand "drunner install ${IMAGENAME} ${SERVICE}"
+
+      # test uninstall process.      
+      testcommand "drunner uninstall ${SERVICE}"
+      testcommand "drunner install ${IMAGENAME} ${SERVICE}"
+      testcommand "drunner uninstall ${SERVICE}"
+      testcommand "drunner recover ${SERVICE} ${IMAGENAME}"
+
+      # test update.
       testcommand "drunner update ${SERVICE}"
             
       checkingmsg "drunner enter ${SERVICE} -c \"echo hi\""
@@ -75,14 +83,14 @@ function testdrunner {
 
       testservice "${SERVICE}"
       testservice "${SERVICE}-clone"
-      
+
       # exit the subshell.
       exit "$RVAL"
    )
    RVAL=$?
    
-   testcommand "drunner destroy ${SERVICE}-clone"
-   testcommand "drunner destroy ${SERVICE}"
+   testcommand "drunner obliterate ${SERVICE}-clone"
+   testcommand "drunner obliterate ${SERVICE}"
    testcommand "rm -r ${TEMPDIR}"
    
    echo " ">&2
