@@ -126,10 +126,6 @@ function main {
             "$MYDIR/test" "$@"
             ;;
          
-         testall)
-            "$MYDIR/testall" "$@"
-            ;;
-
          #--- unrecognised commands
 
          *)
