@@ -11,7 +11,15 @@ function upline { echo -en "\e[1A">&2 ; }
 # call first
 function checkingmsg { PFMSG="$1" ; echo -e "[ \e[2m?\e[0m ] $PFMSG">&2 ; }
 function passmsg { upline ; echo -e "[ \e[32m\u2714\e[0m ] $PFMSG" >&2 ; }
-function failmsg { upline ; echo -e "[ \e[31m\e[1m\u2718\e[0m ] $PFMSG" >&2 ; echo -e "${1:-"No details available."}">&2 ; }
+function failmsg { 
+   upline
+   echo -e "[ \e[31m\e[1m\u2718\e[0m ] $PFMSG" >&2 
+   echo " ">&2
+   echo "--------------------------------------------------------------------------------">&2
+   echo -e "${1:-"No details available."}">&2
+   echo "--------------------------------------------------------------------------------">&2
+   echo " ">&2
+ }
 
 # call second to rewrite with tick/cross
 # expectpass VALUETOTEST 
@@ -31,24 +39,14 @@ function title {
 # works when there's nothing tricky in the string.
 # testcommand COMMAND INVERT
 function testcommand {
-   (
    checkingmsg "$1"
-   local TCFAILDETAILS=$(bash -c "$1")
-   [ $? -eq 0 ] || { failmsg "$TCFAILDETAILS" ; RVAL=1 ; return 1 ; }
+   TCFAILDETAILS=$(bash -c "$1" 2>&1) || { failmsg "$TCFAILDETAILS" ; RVAL=1 ; return 1 ; }
    passmsg 
-   )
 }
 function testcommandfails {
-   (
    checkingmsg "$1"
-   local TCFFAILDETAILS=$(bash -c "$1")
-   local RESULT=$?
-   echo " ">&2
-   echo " ">&2
-   echo " ">&2
-   [ "$RESULT" -ne 0 ] || { failmsg "$RESULT ------ $TCFFAILDETAILS" ; RVAL=1 ; return 1 ; }
-   passmsg 
-   )
+   TCFFAILDETAILS=$(bash -c "$1" 2>&1) || { passmsg ; return 0 ; }
+   failmsg "$TCFFAILDETAILS" ; RVAL=1 ; return 1
 }
 
 function testservice {
@@ -65,6 +63,9 @@ function testdrunner {
    local IMAGENAME="$1"
 
    title "Testing $IMAGENAME"
+   
+   testcommandfails "false"
+   testcommand "true"
    
    local SERVICE="test-${IMAGENAME//[![:alnum:]]/}"
    
