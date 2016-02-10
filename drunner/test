@@ -16,13 +16,13 @@ function failmsg { echo -e "[ \e[31m\e[1m\u2718\e[0m ] $PFMSG" >&2 ; echo -e "${
 # expectpass VALUETOTEST 
 function expectpass {
    upline 
-   [ "$1" -eq 0 ] && passmsg && return
+   [ "$1" -ne 0 ] || { passmsg ; return ; }
    failmsg "${2:-""}"
    RVAL=1
 }
 function expectfail {
    upline
-   [ "$1" -ne 0 ] && passmsg && return
+   [ "$1" -eq 0 ] || { passmsg ; return ; }
    failmsg "${2:-""}"
    RVAL=1
 }
@@ -38,23 +38,26 @@ function title {
 # works when there's nothing tricky in the string.
 # testcommand COMMAND INVERT
 function testcommand {
-   local MYCMD="$1"
-   checkingmsg "$MYCMD"
-   local FAILDETAILS=$(bash -c "$MYCMD" 2>&1)
-   local FVAL="$?"
-   if [ "${2:-0}" -eq 0 ] ; then
-      expectpass "$FVAL" "$FAILDETAILS"
-   else
-      expectfail "$FVAL" "$FAILDETAILS"
-   fi
+   checkingmsg "$1"
+   local FAILDETAILS=$(bash -c "$1" 2>&1)
+   upline
+   [ $? -eq 0 ] || { failmsg "$FAILDETAILS" ; RVAL=1 ; return 1 ; }
+   passmsg 
 }
-
+function testcommandfails {
+   checkingmsg "$1"
+   local FAILDETAILS=$(bash -c "$1" 2>&1)
+   upline
+   [ $? -ne 0 ] || { failmsg "$FAILDETAILS" ; RVAL=1 ; return 1 ; }
+   passmsg 
+}
 
 function testservice {
    local SERVICENAME="$1"  
    
+   testcommandfails "${SERVICENAME}"
    testcommand "${SERVICENAME} help"
-   testcommand "${SERVICENAME} commandthatdoesntexist" 1
+   testcommandfails "${SERVICENAME} commandthatdoesntexist"
    testcommand "${SERVICENAME} selftest"
 }
 
@@ -67,9 +70,8 @@ function testdrunner {
    local SERVICE="test-${IMAGENAME//[![:alnum:]]/}"
    
    checkingmsg "create tempdir"
-   local TEMPDIR="$(mktemp -d)"
-   PFMSG="create tempdir ${TEMPDIR}"
-   expectpass "$?"
+   local TEMPDIR=$(mktemp -d)
+   expectpass $? "$TEMPDIR"
    
    ( #subshell, so if we exit we still clean up
       testcommand "drunner checkimage ${IMAGENAME}"
@@ -86,7 +88,7 @@ function testdrunner {
             
       checkingmsg "drunner enter ${SERVICE} -c \"echo hi\""
       local FAILDETAILS=$(drunner enter "${SERVICE}" -c "echo hi" 2>&1)
-      expectpass "$?" "$FAILDETAILS"
+      expectpass $? "$FAILDETAILS"
            
       local PASS="password123"
       testcommand "PASS=${PASS} drunner backup ${SERVICE} ${TEMPDIR}/backup"

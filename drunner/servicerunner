@@ -136,7 +136,7 @@ function main {
 
          *)
             showhelp
-            die "drunner/test doesn't support the command ${CODE_S}${COMMAND}${CODE_E}"            
+            die "drunner/dtest doesn't support the command ${CODE_S}${COMMAND}${CODE_E}"            
             ;;
    esac
 }
