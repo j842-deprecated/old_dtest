@@ -123,7 +123,7 @@ function main {
          selftest)
             echo "I just failed! -- stdout"
             echo "I just failed! -- stderr"
-            exit 1
+            die "Bam! Failed"
             ;;
             
          #--- custom commands
