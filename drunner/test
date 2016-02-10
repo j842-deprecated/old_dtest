@@ -5,22 +5,28 @@ source "$( dirname "$(readlink -f "$0")" )/variables.sh"
 # This script is run on the host.
 # It launches the docker container and runs our hello world command.
 
+function upline { echo -en "\e[1A">&2 ; }
+
 # call first
 function checkingmsg { PFMSG="$1" ; echo -e "[ \e[2m?\e[0m ] $PFMSG">&2 ; }
 function passmsg { echo -e "[ \e[32m\u2714\e[0m ] $PFMSG" >&2 ; }
-function failmsg { echo -e "[ \e[31m\e[1m\u2718\e[0m ] $PFMSG" >&2 ; }
+function failmsg { echo -e "[ \e[31m\e[1m\u2718\e[0m ] $PFMSG" >&2 ; echo -e "${1:-"No details available."}">&2 ; }
 
 # call second to rewrite with tick/cross
-# passfail VALUETOTEST INVERT
-function passfail {
-   # go up a line
-   echo -en "\e[1A">&2
-   # rewrite, 0 = pass/yes, not 0 = fail/no
-   [ "$2" -eq 0 ] && [ "$1" -eq 0 ] && passmsg && return
-   [ "$2" -ne 0 ] && [ "$1" -ne 0 ] && passmsg && return
-   failmsg
+# expectpass VALUETOTEST 
+function expectpass {
+   upline 
+   [ "$1" -eq 0 ] && passmsg && return
+   failmsg "${2:-""}"
    RVAL=1
 }
+function expectfail {
+   upline
+   [ "$1" -ne 0 ] && passmsg && return
+   failmsg "${2:-""}"
+   RVAL=1
+}
+
 
 function title {
    echo " ">&2
@@ -34,8 +40,13 @@ function title {
 function testcommand {
    local MYCMD="$1"
    checkingmsg "$MYCMD"
-   bash -c "$MYCMD" >/dev/null 2>&1
-   passfail $? ${2:-0}
+   local FAILDETAILS=$(bash -c "$MYCMD" 2>&1)
+   local FVAL="$?"
+   if [ "${2:-0}" -eq 0 ] ; then
+      expectpass "$FVAL" "$FAILDETAILS"
+   else
+      expectfail "$FVAL" "$FAILDETAILS"
+   fi
 }
 
 
@@ -48,6 +59,7 @@ function testservice {
 }
 
 function testdrunner {
+   RVAL=0
    local IMAGENAME="$1"
 
    title "Testing $IMAGENAME"
@@ -57,7 +69,7 @@ function testdrunner {
    checkingmsg "create tempdir"
    local TEMPDIR="$(mktemp -d)"
    PFMSG="create tempdir ${TEMPDIR}"
-   passfail $? 0
+   expectpass "$?"
    
    ( #subshell, so if we exit we still clean up
       testcommand "drunner checkimage ${IMAGENAME}"
@@ -73,8 +85,8 @@ function testdrunner {
       testcommand "drunner update ${SERVICE}"
             
       checkingmsg "drunner enter ${SERVICE} -c \"echo hi\""
-      drunner enter "${SERVICE}" -c "echo hi" >/dev/null 2>&1
-      passfail $? 0
+      local FAILDETAILS=$(drunner enter "${SERVICE}" -c "echo hi" 2>&1)
+      expectpass "$?" "$FAILDETAILS"
            
       local PASS="password123"
       testcommand "PASS=${PASS} drunner backup ${SERVICE} ${TEMPDIR}/backup"
@@ -94,12 +106,11 @@ function testdrunner {
    testcommand "rm -r ${TEMPDIR}"
    
    echo " ">&2
+   exit "$RVAL"
 }
 
 
-RVAL=0
-testdrunner ${1:-$IMAGENAME}
-exit $RVAL
+testdrunner "${1:-$IMAGENAME}"
 
 # http://patorjk.com/software/taag/#p=display&f=Univers&t=dRunner
 # http://shapecatcher.com/
