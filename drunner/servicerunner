@@ -121,9 +121,9 @@ function main {
             ;;
          
          selftest)
-            echo "I just failed! -- stdout"
-            echo "I just failed! -- stderr"
-            die "Bam! Failed"
+            #echo "I just failed! -- stdout"
+            #echo "I just failed! -- stderr"
+            #die "Bam! Failed"
             ;;
             
          #--- custom commands
