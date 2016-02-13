@@ -74,7 +74,7 @@ function testdrunner {
    expectpass $? "$TEMPDIR"
    
    ( #subshell, so if we exit we still clean up
-      testcommand "drunner checkimage ${IMAGENAME}"
+      testcommand "drunner checkimage ${IMAGENAME}" || { failmsg "Not dRunner compatible. Aborting tests." ; exit 1 ;}
       testcommand "drunner install ${IMAGENAME} ${SERVICE}"
 
       # test uninstall process.      

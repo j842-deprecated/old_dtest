@@ -19,9 +19,7 @@ set -e
 
 MYDIR=$( dirname "$(readlink -f "$0")" )
 source "$MYDIR/variables.sh"
-e=$(printf "\e") 
-readonly CODE_S="$e[32m"
-readonly CODE_E="$e[0m"
+source "$MYDIR/utils.sh"
 
 #------------------------------------------------------------------------------------
 # die MSG - show the message (red) and exit 1.
