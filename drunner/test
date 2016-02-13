@@ -70,7 +70,7 @@ function testdrunner {
    local SERVICE="test-${IMAGENAME//[![:alnum:]]/}"
    
    checkingmsg "create tempdir"
-   local TEMPDIR=$(mktemp -d)
+   local TEMPDIR=$(mktemp -d -p "$SERVICETEMPDIR")
    expectpass $? "$TEMPDIR"
    
    ( #subshell, so if we exit we still clean up
@@ -105,7 +105,7 @@ function testdrunner {
    
    testcommand "drunner obliterate ${SERVICE}-clone"
    testcommand "drunner obliterate ${SERVICE}"
-   testcommand "rm -r ${TEMPDIR}"
+   testcommand "rm -rf ${TEMPDIR}"
    
    echo " ">&2
    exit "$RVAL"
